@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <title>Test</title>
+    </head>
+    <body>
+        <header style="background-color: red;">
+            <h3 style="color: white; padding: 0.2em;">Formulario de pruebas: no introduzcas datos de producción</h3>
+        </header>
+        <form method="POST" action="http://localhost:3000/form-post">
+            <input type="text" name="name" placeholder="Nombre">
+            <input type="text" name="dni" placeholder="DNI">
+            <input type="email" name="email" placeholder="email">
+            <input type="text" name="adress" placeholder="Dirección">
+            <input type="text" name="postal_code" placeholder="Código postal">
+            <input type="text" name="lastname" placeholder="Apellidos">
+            <input type="date" name="date" placeholder="Fecha de nacimiento">
+            <input type="text" name="phone" placeholder="Teléfono">
+            <input type="text" name="country" placeholder="Población">
+            <hr>
+            <label for="driver_license">Licencia de conducir</label>
+            <input type="radio" name="driver_license" value="Si" id="driver_license" checked="checked">
+            <input type="radio" name="driver_license" value="No">
+            <label for="vehicle">Vehículo</label>
+            <input type="radio" name="vehicle" value="Si" id="vehicle" checked="checked">
+            <input type="radio" name="vehicle" value="No">
+            <label for="formation">Formación</label>
+            <select name="formation" id="formation">
+                <option hidden selected>Escoge una</option>
+                <option>Primaria</option>
+                <option>ESO</option>
+                <option>Bachiller</option>
+                <option>FP GM</option>
+                <option>FP GS</option>
+                <option>Universidad</option>
+            </select>
+            <input type="text" placeholder="Especifica cuál" name="specify_which_formation">
+            <hr>
+            <label>Idioma</label>
+            <br>
+            <label for="language_es">Español</label>
+            <input type="checkbox" name="language[]" value="Español" id="language_es">
+            <br>
+            <label for="language_ca">Catalán</label>
+            <input type="checkbox" name="language[]" value="Catalán" id="language_ca"><br>
+            <label for="language_en">Inglés</label>
+            <input type="checkbox" name="language[]" value="Inglés" id="language_en">
+            <br>
+            <input type="text" name="specify_which_language" placeholder="Especifica cuál">
+            <hr>
+            <label>¿En qué estás interesado?</label>
+            <br>
+            <input type="checkbox" name="interested[]" value="Oficina" id="Oficina">
+            <label for="Oficina">Oficina</label>
+            <br>
+            <input type="checkbox" name="interested[]" value="GPV" id="GPV">
+            <label for="GPV">GPV</label>
+            <br>
+            <input type="checkbox" name="interested[]" value="Formador/a" id="Formador">
+            <label for="Formador">Formador/a</label>
+            <hr>
+            <input type="text" placeholder="¿Qué puesto te interesa?" name="tu-puesto">
+            <hr>
+            <label for="upload-file">Adjuntar CV</label>
+            <br>
+            <input type="file" name="upload-file" id="upload-file">
+            <hr>
+            <button type="submit">Enviar</button>
+        </form>
+    </body>
+</html>
