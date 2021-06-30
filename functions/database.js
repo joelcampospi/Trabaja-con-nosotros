@@ -4,8 +4,25 @@ module.exports = {
         databasePath = "database";
         DatabaseWorker() {}
     
-        async Find(query) {
-
+        // Returns a JSON containing a list of the items
+        async Find(query, method = "SRICT", start = 0, limit = -1) {
+            const files = await fs.readdirSync(this.databasePath);
+            console.log("QUERY");
+            let result = {
+                lastId: -1,
+                data: []
+            };
+            let i;
+            for(i = start; i < files.length; i++) {
+                const file = files[i];
+                console.log("CHECKING: " + file);
+                const content = JSON.parse(await fs.readFileSync(`${this.databasePath}/${file}`,"utf-8")); // <-- Read file
+                const matches = this.DataQuerier(content, method);
+                result.data.push(content);
+                if(limit != -1 && limit < i) break;
+            }
+            if(limit != -1) result.lastId = i;
+            return result;
         }
         async Merge(json, id) {}
         async Create(json) {
@@ -34,6 +51,10 @@ module.exports = {
 
         GiveID() {
             return new Date().getTime();
+        }
+
+        DataQuerier(json, method) {
+            
         }
     }
 }

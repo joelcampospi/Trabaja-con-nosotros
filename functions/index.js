@@ -18,8 +18,11 @@ app.get('/', function(req, res) {
     res.send('Server is up');
 });
 
-app.get('/query', function(req, res) {
-    res.send('Making query');
+app.get('/query', async function(req, res) {
+    const results = await db.Find({
+        name:"joel"
+    }, "STRICT",0,1);
+    res.send(results);
 });
 
 app.post('/form-post' , async (req , res) => {
