@@ -4,6 +4,7 @@ var query = {
 
     }
 };
+var keys = [];
 
 async function GetEntries(method) {
     var http = new XMLHttpRequest();
@@ -22,6 +23,7 @@ async function GetEntries(method) {
             const data = JSON.parse(http.responseText);
             if(method == "CLEAR") {
                 lastIndex = data.lastId;
+                console.log(data);
                 ConstructUI(data);
             }
         }
@@ -41,10 +43,13 @@ const entryList = document.getElementById("entryList");
 
 function ConstructUI(data) {
     entryList.innerHTML = "";
+    let lastEntry;
     for(const key of Object.keys(data.data)) {
         const entry = data.data[key];
         entryList.innerHTML += CreateCard(key,entry);
+        lastEntry = entry;
     }
+    keys = Object.keys(lastEntry);
 
     function CreateCard(id, entry) {
         var elements = "";
@@ -83,7 +88,7 @@ function ConstructUI(data) {
                 </div>
             </div>
             <hr>
-            <a href="#" class="card-link">Card link</a>
+            <span class="material-icons text-danger" onclick="AskDelete('${id}')">delete</span>
             </div>
         </div>
         <br>
@@ -93,44 +98,105 @@ function ConstructUI(data) {
             return `<span class="text-danger">${text}</span>`
         }
     }
+}
 
-    function Sanitize(text) {
-        return text;
+function Sanitize(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;',
+        "/": '&#x2F;',
+    };
+    const reg = /[&<>"'/]/ig;
+    return text.replace(reg, (match)=>(map[match]));
+}
+function Translate(text) {
+    const values = {
+        "name":"Nombre",
+        "dni":"DNI",
+        "email":"Email",
+        "adress":"Dirección",
+        "postal_code":"Código postal",
+        "lastname":"Apellido",
+        "date":"Fecha",
+        "phone":"Teléfono",
+        "country":"País",
+        "driver_license":"Permiso de conducción",
+        "vehicle":"Vehículo",
+        "formation":"Formación",
+        "specify_which_formation":"Especifica la formación",
+        "specify_which_language":"Especifica idiomas",
+        "interested[]":"Interesado en",
+        "language[]":"Idiomas",
+        "tu-puesto":"Tu puesto",
+        "upload-file":"Currículum"
     }
-    function Translate(text) {
-        const values = {
-            "name":"Nombre",
-            "dni":"DNI",
-            "email":"Email",
-            "adress":"Dirección",
-            "postal_code":"Código postal",
-            "lastname":"Apellido",
-            "date":"Fecha",
-            "phone":"Teléfono",
-            "country":"País",
-            "driver_license":"Permiso de conducción",
-            "vehicle":"Vehículo",
-            "formation":"Formación",
-            "specify_which_formation":"Especifica la formación",
-            "specify_which_language":"Especifica idiomas",
-            "interested[]":"Interesado en",
-            "language[]":"Idiomas",
-            "tu-puesto":"Tu puesto",
-            "upload-file":"Currículum"
-        }
-        return values[text] || text;
-    }
+    return values[text] || text;
 }
 
 // ---[ FILTERS ]---
-const queryBtn = document.getElementById("queryBtn");
-queryBtn.addEventListener('click',() => {
-    lastIndex = 0;
-    GetEntries("CLEAR");
+const addFilterModal = new bootstrap.Modal(document.getElementById('filterModal'), {});
+const filterBtn = document.getElementById("filterBtnModal");
+filterBtn.addEventListener('click',() => {
+    // Generate list of filyters
+    let options = "";
+    for(let key of keys) {
+        if(["signature"].includes(key) || Object.keys(query.query).includes(key)) continue;
+        options += `<option value="${Sanitize(key)}">${Sanitize(Translate(key))}</option>`;
+    }
+    document.getElementById("filter_select").innerHTML = options;
 });
 
-const nameQuery = document.getElementById("query_name");
-nameQuery.addEventListener("input",(val) => {
-    if(nameQuery.value.length > 0) query.query.name = nameQuery.value || "";
-    else delete(query.query.name);
+const addFilterBtn = document.getElementById("addFilter");
+addFilterBtn.addEventListener('click',() => {
+    const filterValue = document.getElementById("filterValue").value;
+    const filterName = document.getElementById("filter_select").value;
+    const tag = GenerateFilterTag(Sanitize(filterName), Sanitize(filterValue));
+    document.getElementById("appliedFilters").innerHTML += tag;
+    query.query[filterName] = filterValue;
+    GetEntries("CLEAR");
+    addFilterModal.hide();
 });
+
+function RemoveFilter(tagName) {
+    delete query.query[tagName];
+    GetEntries("CLEAR");
+}
+
+function GenerateFilterTag(tagName, tagValue) {
+    return `<div class="alert alert-primary alert-dismissible fade show" role="alert">
+    <strong>${Translate(tagName)}: </strong>${tagValue}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onclick="RemoveFilter('${tagName}')"></button>
+</div>`;
+}
+
+// ---[ ACTIONS ]---
+const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'), {});
+function AskDelete(id) {
+    document.getElementById("confirmDelete").setAttribute("onclick",`Delete(${id})`);
+    deleteModal.show();
+}
+function Delete(id) {
+    var http = new XMLHttpRequest();
+    var url = 'http://localhost:3000/action';
+    var params = "data=" + JSON.stringify({action:"delete",id:id});
+    http.open('POST', url, true);
+    console.log(query);
+
+    //Send the proper header information along with the request
+    http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+    http.send(params);
+
+    http.onreadystatechange = function() { //Call a function when the state changes.
+        if(http.readyState == 4 && http.status == 200) {
+            const data = JSON.parse(http.responseText);
+            if(data.response == "done") {
+                document.getElementById("entryID_" + id).remove();
+                deleteModal.hide();
+            }
+        }
+    }
+}

@@ -6,8 +6,9 @@ module.exports = {
     
         // Returns a JSON containing a list of the items
         async Find(query = {}, method = "STRICT", start = 0, limit = -1) {
-            const files = await fs.readdirSync(this.databasePath);
-            console.log("QUERY");
+            const _files = await fs.readdirSync(this.databasePath + "/", { withFileTypes: true });
+            const files = _files.filter(el => el.isFile()).map(el => el.name);
+            console.log(files);
             let result = {
                 lastId: -1,
                 data: {}
@@ -15,8 +16,9 @@ module.exports = {
             let i;
             for(i = start; i < files.length && (Object.keys(result.data).length + 1 <= limit || limit == -1); i++) {
                 const file = files[i];
-                console.log("CHECKING: " + file);
-                const content = JSON.parse(await fs.readFileSync(`${this.databasePath}/${file}`,"utf-8")); // <-- Read file
+                const fileContent = await fs.readFileSync(`${this.databasePath}/${file}`);
+                console.log("CHECKING: " + fileContent);
+                const content = JSON.parse(fileContent,"utf-8"); // <-- Read file
                 const matches = this.DataQuerier(content, query, method); // <-- Accomplishes?
                 if(matches) result.data[file.replace(".json","")] = content;
             }
@@ -44,6 +46,10 @@ module.exports = {
                 if(err) throw err;
                 console.log("CREATED " + where);
             });
+        }
+        async Delete(file) {
+            console.log("DELETING");
+            await fs.unlinkSync(this.databasePath + "/" + file + ".json");
         }
 
         SignJson(json) {

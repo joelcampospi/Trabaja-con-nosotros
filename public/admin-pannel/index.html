@@ -7,6 +7,7 @@
         <!-- BOOTSTRAP -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
         
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
     <body>
@@ -16,19 +17,23 @@
             <div class="card">
                 <div class="card-body">
                     <div class="row">
-                        <div class="col">
-                            <input type="email" class="form-control" id="query_name" placeholder="Nombre">
-                        </div>
-                        <div class="col">
-                            <button class="btn btn-primary" style="width: 100%;" id="queryBtn">Filtrar</button>
+                        <div class="col-3">
+                            <button id="filterBtnModal" class="btn btn-primary" style="width: 100%;" data-bs-toggle="modal" data-bs-target="#filterModal">Filtrar</button>
                         </div>
                     </div>
                 </div>  
             </div>
             <hr>
             <section class="row">
-                <div class="col-md-3">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            Filtros activos
+                        </div>
+                        <div class="card-body" id="appliedFilters">
 
+                        </div>
+                    </div>
                 </div>
                 <div class="col-md">
                     <div id="entryList">
@@ -39,6 +44,43 @@
                 </div>
             </section>
         </section>
+
+        <!-- MODALS -->
+        <div class="modal fade" tabindex="-1" id="filterModal">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Filtros</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="row mb-3">
+                    <div class="col">
+                        <select id="filter_select" class="form-control"></select>
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control" placeholder="Valor del filtro..." id="filterValue">
+                    </div>
+                  </div>
+                  <button id="addFilter" class="btn btn-primary form-control">Añadir filtro</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal fade" tabindex="-1" id="deleteModal">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">¿Seguro que quieres elminiar la entrada?</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <button id="confirmDelete" class="btn btn-danger form-control">Sí, borrar</button>
+                </div>
+              </div>
+            </div>
+          </div>
 
         <!-- BOOTSTRAP -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>

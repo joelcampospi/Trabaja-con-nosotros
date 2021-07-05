@@ -42,6 +42,13 @@ app.post('/form-post', upload.single("upload-file"), async (req, res) => {
     res.send(req.body);
 });
 
+app.post('/action', async (req, res) => {
+    const rawData = JSON.parse(req.body.data); // <-- Form data
+    console.log(rawData);
+    if(rawData.action == "delete") await db.Delete(rawData.id);
+    res.send({response:"done"});
+});
+
 app.listen(3000, function() {
     console.log('Listening on 3000');
 });
