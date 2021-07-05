@@ -1,31 +1,36 @@
 console.log("--[ LOADED ADMINPANNEL.JS ]--");
+var query = {
+    query: {
 
-async function GetEntries(method, query) {
+    }
+};
+
+async function GetEntries(method) {
     var http = new XMLHttpRequest();
     var url = 'http://localhost:3000/query';
     var params = "query=" + JSON.stringify(query);
     http.open('POST', url, true);
+    console.log(query);
 
     //Send the proper header information along with the request
     http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
     http.send(params);
 
-    http.onreadystatechange = function() {//Call a function when the state changes.
+    http.onreadystatechange = function() { //Call a function when the state changes.
         if(http.readyState == 4 && http.status == 200) {
             const data = JSON.parse(http.responseText);
             if(method == "CLEAR") {
+                lastIndex = data.lastId;
                 ConstructUI(data);
             }
         }
     }
 }
 
+var lastIndex = 0;
 async function LoadForFirstTime() {
-    const query = {
-        query: {}
-    }
-    GetEntries("CLEAR", query);
+    GetEntries("CLEAR");
 }
 
 LoadForFirstTime();
@@ -116,3 +121,16 @@ function ConstructUI(data) {
         return values[text] || text;
     }
 }
+
+// ---[ FILTERS ]---
+const queryBtn = document.getElementById("queryBtn");
+queryBtn.addEventListener('click',() => {
+    lastIndex = 0;
+    GetEntries("CLEAR");
+});
+
+const nameQuery = document.getElementById("query_name");
+nameQuery.addEventListener("input",(val) => {
+    if(nameQuery.value.length > 0) query.query.name = nameQuery.value || "";
+    else delete(query.query.name);
+});

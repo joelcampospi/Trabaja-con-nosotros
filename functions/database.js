@@ -24,10 +24,14 @@ module.exports = {
             return result;
         }
         async Merge(json, id) {}
-        async Create(json) {
-            try {
+        async Create(json, fileData) {
+            try { 
                 const id = this.GiveID().toString();
                 await this.Write(`${this.databasePath}/${id}.json`, json);
+                if(fileData) {
+                    // File worker
+                    fs.rename(fileData.path, this.databasePath + "/files/" + id + (fileData.originalname.includes(".") ? "." + fileData.originalname.split(".")[1] : ""),() => {});
+                }
             } catch(e) {
                 console.log(`Error: ${e}`);
             }

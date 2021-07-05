@@ -3,7 +3,10 @@ var bodyParser = require('body-parser');
 var path = require("path");
 var helmet = require('helmet');
 const database = require("./database");
+//const formidable = require('formidable');
 const app = express();
+const multer = require("multer");
+const upload = multer({dest:"database/files"});
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname,'./public')));
@@ -33,12 +36,14 @@ app.post('/query', async function(req, res) {
     res.send(results);
 });
 
-app.post('/form-post' , async (req , res) => {
+app.post('/form-post', upload.single("upload-file"), async (req, res) => {
     const rawData = req.body; // <-- Form data
-    await db.Create(rawData);
+    await db.Create(rawData, req.file);
     res.send(req.body);
 });
-  
+
 app.listen(3000, function() {
     console.log('Listening on 3000');
 });
+
+// 9932f3d42a1a320d320a7849b962f3bfa5feab7f92b6c06de831894aad722705
