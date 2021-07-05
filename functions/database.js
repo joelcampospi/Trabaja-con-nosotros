@@ -6,9 +6,10 @@ module.exports = {
     
         // Returns a JSON containing a list of the items
         async Find(query = {}, method = "STRICT", start = 0, limit = -1) {
+            console.log(start);
+            console.log(limit);
             const _files = await fs.readdirSync(this.databasePath + "/", { withFileTypes: true });
             const files = _files.filter(el => el.isFile()).map(el => el.name);
-            console.log(files);
             let result = {
                 lastId: -1,
                 data: {}
@@ -17,7 +18,6 @@ module.exports = {
             for(i = start; i < files.length && (Object.keys(result.data).length + 1 <= limit || limit == -1); i++) {
                 const file = files[i];
                 const fileContent = await fs.readFileSync(`${this.databasePath}/${file}`);
-                console.log("CHECKING: " + fileContent);
                 const content = JSON.parse(fileContent,"utf-8"); // <-- Read file
                 const matches = this.DataQuerier(content, query, method); // <-- Accomplishes?
                 if(matches) result.data[file.replace(".json","")] = content;

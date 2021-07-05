@@ -31,8 +31,8 @@ app.get('/', function(req, res) {
 
 app.post('/query', async function(req, res) {
     const param = JSON.parse(req.body.query) || {};
-    console.log(param);
-    const results = await db.Find(param.query || {});
+    console.log(param.limit);
+    const results = await db.Find(param.query || {}, param.method || "STRICT", param.start || 0, param.limit || -1);
     res.send(results);
 });
 

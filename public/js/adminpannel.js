@@ -1,12 +1,14 @@
 console.log("--[ LOADED ADMINPANNEL.JS ]--");
 var query = {
+    limit: 10,
+    start: 0,
     query: {
 
     }
 };
 var keys = [];
 
-async function GetEntries(method) {
+async function GetEntries(method) {;
     var http = new XMLHttpRequest();
     var url = 'http://localhost:3000/query';
     var params = "query=" + JSON.stringify(query);
@@ -21,16 +23,16 @@ async function GetEntries(method) {
     http.onreadystatechange = function() { //Call a function when the state changes.
         if(http.readyState == 4 && http.status == 200) {
             const data = JSON.parse(http.responseText);
+            query.start = data.lastId;
             if(method == "CLEAR") {
-                lastIndex = data.lastId;
-                console.log(data);
-                ConstructUI(data);
+                ConstructUI(data, false);
+            } else {
+                ConstructUI(data, true);
             }
         }
     }
 }
 
-var lastIndex = 0;
 async function LoadForFirstTime() {
     GetEntries("CLEAR");
 }
@@ -41,8 +43,8 @@ LoadForFirstTime();
 
 const entryList = document.getElementById("entryList");
 
-function ConstructUI(data) {
-    entryList.innerHTML = "";
+function ConstructUI(data, append) {
+    if(!append) entryList.innerHTML = "";
     let lastEntry;
     for(const key of Object.keys(data.data)) {
         const entry = data.data[key];
@@ -136,6 +138,10 @@ function Translate(text) {
     return values[text] || text;
 }
 
+function LoadMore() {
+    GetEntries("APPEND");
+}
+
 // ---[ FILTERS ]---
 const addFilterModal = new bootstrap.Modal(document.getElementById('filterModal'), {});
 const filterBtn = document.getElementById("filterBtnModal");
@@ -156,12 +162,14 @@ addFilterBtn.addEventListener('click',() => {
     const tag = GenerateFilterTag(Sanitize(filterName), Sanitize(filterValue));
     document.getElementById("appliedFilters").innerHTML += tag;
     query.query[filterName] = filterValue;
+    query.start = 0;
     GetEntries("CLEAR");
     addFilterModal.hide();
 });
 
 function RemoveFilter(tagName) {
     delete query.query[tagName];
+    query.start = 0;
     GetEntries("CLEAR");
 }
 
