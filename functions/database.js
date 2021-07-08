@@ -23,7 +23,7 @@ module.exports = {
             result.lastId = i;
             return result;
         }
-        async Merge(json, id) {}
+        async Merge(json, id) {} // <-- Not implemented
         async Create(json, fileData) {
             try { 
                 const id = this.GiveID().toString();
@@ -42,11 +42,9 @@ module.exports = {
             json = this.SignJson(json); // <-- Sign the entry
             fs.writeFile(where,JSON.stringify(json),(err) => {
                 if(err) throw err;
-                console.log("CREATED " + where);
             });
         }
         async Delete(file) {
-            console.log("DELETING");
             await fs.unlinkSync(this.databasePath + "/" + file + ".json");
             let cv = null;
             for(const _file of await fs.readdirSync("functions/database/files")) {
@@ -55,7 +53,7 @@ module.exports = {
                     break;
                 }
             }
-            await fs.unlinkSync(this.databasePath + "/files/" + cv)
+            if(cv) await fs.unlinkSync(this.databasePath + "/files/" + cv);
         }
 
         SignJson(json) {

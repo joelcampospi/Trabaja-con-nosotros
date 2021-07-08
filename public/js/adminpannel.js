@@ -1,4 +1,7 @@
 console.log("--[ LOADED ADMINPANNEL.JS ]--");
+//const sess = getCookie("session");
+console.log(sess);
+if(!sess) window.location.replace("http://localhost:8080/login");
 var query = {
     limit: 20,
     start: 0,
@@ -11,7 +14,7 @@ var keys = [];
 async function GetEntries(method) {;
     var http = new XMLHttpRequest();
     var url = 'http://localhost:3000/query';
-    var params = "query=" + JSON.stringify(query);
+    var params = "query=" + JSON.stringify(query) + "&sess=" + sess;
     http.open('POST', url, true);
     console.log(query);
 
@@ -23,6 +26,11 @@ async function GetEntries(method) {;
     http.onreadystatechange = function() { //Call a function when the state changes.
         if(http.readyState == 4 && http.status == 200) {
             const data = JSON.parse(http.responseText);
+            console.log(data);
+            if(data.response == "401") {
+                sessionStorage.removeItem("sess");
+                window.location.replace("http://localhost:8080/login");
+            }
             query.start = data.lastId;
             if(method == "CLEAR") {
                 ConstructUI(data, false);
@@ -91,7 +99,7 @@ function ConstructUI(data, append) {
             </div>
             <hr>
             <span class="material-icons text-danger" onclick="AskDelete('${id}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar entrada">delete</span>
-            <span class="material-icons text-primary" onclick="ViewCV('${id}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver currículum"><a href="http://localhost:3000/view-cv/${id}" target="_blank">description</a></span>
+            <span class="material-icons text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver currículum"><a href="http://localhost:3000/view-cv/${id}?sess=${sess}" target="_blank">description</a></span>
             </div>
         </div>
         <br>
@@ -196,9 +204,8 @@ function AskDelete(id) {
 function Delete(id) {
     var http = new XMLHttpRequest();
     var url = 'http://localhost:3000/action';
-    var params = "data=" + JSON.stringify({action:"delete",id:id});
+    var params = "data=" + JSON.stringify({action:"delete",id:id, sess:sess});
     http.open('POST', url, true);
-    console.log(query);
 
     //Send the proper header information along with the request
     http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
