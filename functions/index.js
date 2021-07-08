@@ -3,9 +3,10 @@ var bodyParser = require('body-parser');
 var path = require("path");
 var helmet = require('helmet');
 const database = require("./database");
-//const formidable = require('formidable');
+const fs = require("fs");
 const app = express();
 const multer = require("multer");
+const { fstat } = require('fs');
 const upload = multer({dest:"database/files"});
 
 app.use(bodyParser.urlencoded({extended: false}));
@@ -31,7 +32,6 @@ app.get('/', function(req, res) {
 
 app.post('/query', async function(req, res) {
     const param = JSON.parse(req.body.query) || {};
-    console.log(param.limit);
     const results = await db.Find(param.query || {}, param.method || "STRICT", param.start || 0, param.limit || -1);
     res.send(results);
 });
@@ -43,10 +43,24 @@ app.post('/form-post', upload.single("upload-file"), async (req, res) => {
 });
 
 app.post('/action', async (req, res) => {
-    const rawData = JSON.parse(req.body.data); // <-- Form data
+    const rawData = JSON.parse(req.body.data); // <-- Data
     console.log(rawData);
     if(rawData.action == "delete") await db.Delete(rawData.id);
     res.send({response:"done"});
+});
+
+app.get('/view-cv/:cvid', async (req, res) => {
+    const id = req.params.cvid;
+    let filename = null;
+    for(const file of await fs.readdirSync("functions/database/files")) {
+        if(file.split(".")[0] == id) {
+            filename = file;
+            break;
+        }
+    }
+    console.log("FILENAME: " + filename);
+    if(!filename) res.send({response:"404"});
+    res.sendFile("database/files/" + filename,{root:__dirname});
 });
 
 app.listen(3000, function() {

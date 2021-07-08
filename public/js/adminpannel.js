@@ -1,6 +1,6 @@
 console.log("--[ LOADED ADMINPANNEL.JS ]--");
 var query = {
-    limit: 10,
+    limit: 20,
     start: 0,
     query: {
 
@@ -51,7 +51,7 @@ function ConstructUI(data, append) {
         entryList.innerHTML += CreateCard(key,entry);
         lastEntry = entry;
     }
-    keys = Object.keys(lastEntry);
+    keys = Object.keys(lastEntry || {});
 
     function CreateCard(id, entry) {
         var elements = "";
@@ -90,7 +90,8 @@ function ConstructUI(data, append) {
                 </div>
             </div>
             <hr>
-            <span class="material-icons text-danger" onclick="AskDelete('${id}')">delete</span>
+            <span class="material-icons text-danger" onclick="AskDelete('${id}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar entrada">delete</span>
+            <span class="material-icons text-primary" onclick="ViewCV('${id}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver currículum"><a href="http://localhost:3000/view-cv/${id}" target="_blank">description</a></span>
             </div>
         </div>
         <br>
@@ -130,14 +131,20 @@ function Translate(text) {
         "formation":"Formación",
         "specify_which_formation":"Especifica la formación",
         "specify_which_language":"Especifica idiomas",
-        "interested[]":"Interesado en",
-        "language[]":"Idiomas",
+        "interested":"Interesado en",
+        "language":"Idiomas",
         "tu-puesto":"Tu puesto",
         "upload-file":"Currículum"
     }
     return values[text] || text;
 }
 
+function ResetFilters() {
+    query.query = {};
+    query.start = 0;
+    document.getElementById("appliedFilters").innerHTML = "";
+    GetEntries("CLEAR");
+}
 function LoadMore() {
     GetEntries("APPEND");
 }

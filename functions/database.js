@@ -1,13 +1,11 @@
 const fs = require("fs");
 module.exports = {
     DatabaseWorker: class DatabaseWorker {
-        databasePath = "database";
+        databasePath = "functions/database";
         DatabaseWorker() {}
     
         // Returns a JSON containing a list of the items
         async Find(query = {}, method = "STRICT", start = 0, limit = -1) {
-            console.log(start);
-            console.log(limit);
             const _files = await fs.readdirSync(this.databasePath + "/", { withFileTypes: true });
             const files = _files.filter(el => el.isFile()).map(el => el.name);
             let result = {
@@ -50,6 +48,14 @@ module.exports = {
         async Delete(file) {
             console.log("DELETING");
             await fs.unlinkSync(this.databasePath + "/" + file + ".json");
+            let cv = null;
+            for(const _file of await fs.readdirSync("functions/database/files")) {
+                if(_file.split(".")[0] == file) {
+                    cv = _file;
+                    break;
+                }
+            }
+            await fs.unlinkSync(this.databasePath + "/files/" + cv)
         }
 
         SignJson(json) {
