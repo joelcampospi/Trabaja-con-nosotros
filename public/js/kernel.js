@@ -5,3 +5,6 @@ function getCookie(name) {
 }
 
 const sess = sessionStorage.getItem("sess");
+
+const serverURL = "http://localhost:3000";
+const hostingURL = "http://localhost:8080";

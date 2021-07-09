@@ -1,6 +1,6 @@
 async function Login() {;
     var http = new XMLHttpRequest();
-    var url = 'http://localhost:3000/login';
+    var url = serverURL + '/login';
     var params = `password=${document.getElementById("password").value}&username=${document.getElementById("username").value}`;
     http.open('POST', url, true);
 
@@ -25,6 +25,6 @@ async function Login() {;
 }
 
 function Redirect() {
-    window.location.replace("http://localhost:8080/admin-pannel");
+    window.location.replace(hostingURL + "/admin-pannel");
 }
 if(sess) Redirect();

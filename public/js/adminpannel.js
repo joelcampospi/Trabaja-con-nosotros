@@ -1,7 +1,7 @@
 console.log("--[ LOADED ADMINPANNEL.JS ]--");
 //const sess = getCookie("session");
 console.log(sess);
-if(!sess) window.location.replace("http://localhost:8080/login");
+if(!sess) window.location.replace(hostingURL + "/login");
 var query = {
     limit: 20,
     start: 0,
@@ -14,7 +14,7 @@ var keys = [];
 
 async function GetEntries(method) {;
     var http = new XMLHttpRequest();
-    var url = 'http://localhost:3000/query';
+    var url = serverURL + '/query';
     var params = "query=" + JSON.stringify(query) + "&sess=" + sess;
     http.open('POST', url, true);
     console.log(query);
@@ -30,7 +30,7 @@ async function GetEntries(method) {;
             console.log(data);
             if(data.response == "401") {
                 sessionStorage.removeItem("sess");
-                window.location.replace("http://localhost:8080/login");
+                window.location.replace(hostingURL + "/login");
             }
             query.start = data.lastId;
             if(method == "CLEAR") {
@@ -204,7 +204,7 @@ function AskDelete(id) {
 }
 function Delete(id) {
     var http = new XMLHttpRequest();
-    var url = 'http://localhost:3000/action';
+    var url =  serverURL + '/action';
     var params = "data=" + JSON.stringify({action:"delete",id:id, sess:sess});
     http.open('POST', url, true);
 
