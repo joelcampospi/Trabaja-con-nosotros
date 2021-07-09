@@ -31,6 +31,7 @@ app.get('/', function(req, res) {
     res.send('Server is up');
 });
 
+// Makes a query to the BBDD. Only allowed for authorised users
 app.post('/query', async function(req, res) {
     if(!(await isAuthorised(req.body.sess))) {
         res.send({response:"401"});
@@ -41,12 +42,14 @@ app.post('/query', async function(req, res) {
     res.send(results);
 });
 
+// Posts the values of the form
 app.post('/form-post', upload.single("upload-file"), async (req, res) => {
     const rawData = req.body; // <-- Form data
     await db.Create(rawData, req.file);
     res.send("OK");
 });
 
+// Allows authorised users to make actions to the BBDD
 app.post('/action', async (req, res) => {
     const rawData = JSON.parse(req.body.data); // <-- Data
     if(!(await isAuthorised(rawData.sess))) {
@@ -57,6 +60,7 @@ app.post('/action', async (req, res) => {
     res.send({response:"done"});
 });
 
+// Allows authorised users to view CVs
 app.get('/view-cv/:cvid', async (req, res) => {
     if(!(await isAuthorised(req.query.sess))) {
         res.send({response:"401"});
@@ -74,6 +78,7 @@ app.get('/view-cv/:cvid', async (req, res) => {
     res.sendFile("database/files/" + filename,{root:__dirname});
 });
 
+// Allows users to sign in
 app.post('/login' , async (req , res)=>{
     const user = await GetUserFromLogin(req.body.username);
     if(!user) {
@@ -100,6 +105,7 @@ app.listen(3000, function() {
     console.log('Listening on 3000');
 });
 
+// Checks if a session ID is authorised
 async function isAuthorised(pass) {
     if(!pass) return false; // <-- If there is no SESS ID, reject
     const exists = await fs.existsSync("./functions/auth/sessions/" + pass + ".json");
@@ -111,6 +117,7 @@ async function isAuthorised(pass) {
     return true;
 }
 
+// Given a "login" it returns a User Object
 async function GetUserFromLogin(login) {
     for(const userFile of (await fs.readdirSync("./functions/auth/users"))) {
         const content = JSON.parse(await fs.readFileSync("./functions/auth/users/" + userFile));
@@ -119,6 +126,7 @@ async function GetUserFromLogin(login) {
     return false;
 }
 
+// Given a session ID it returns the corresponding user data as a JS Object
 async function GetUserdataFromSess(sess) {
     const sessData = await fs.readFileSync("./functions/auth/sessions/" + sess + ".json");
     if(sessData) {
@@ -133,10 +141,12 @@ async function GetUserdataFromSess(sess) {
     return {got:false};
 }
 
+// Given a UID (User ID) it returns the corresponding user data as a JS Object
 async function GetUserdataFromUid(uid) {
     return await fs.readFileSync("./functions/auth/users/" + uid + ".json") || false;
 }
 
+// Standard user class
 class User {
     canLogin = false;
     uid = "";

@@ -24,6 +24,8 @@ module.exports = {
             return result;
         }
         async Merge(json, id) {} // <-- Not implemented
+
+        // Creates a json document
         async Create(json, fileData) {
             try { 
                 const id = this.GiveID().toString();
@@ -37,6 +39,7 @@ module.exports = {
             }
         }
 
+        // Writes a JSON document
         async Write(where, json) {
             // Write JSON data onto a file
             json = this.SignJson(json); // <-- Sign the entry
@@ -44,6 +47,8 @@ module.exports = {
                 if(err) throw err;
             });
         }
+
+        // Deletes an entry and its CV
         async Delete(file) {
             await fs.unlinkSync(this.databasePath + "/" + file + ".json");
             let cv = null;
@@ -56,12 +61,14 @@ module.exports = {
             if(cv) await fs.unlinkSync(this.databasePath + "/files/" + cv);
         }
 
+        // Signs a JSON object with some parameters
         SignJson(json) {
             json.signature = {};
             json.signature.created = Date.now();
             return json;
         }
 
+        // Returns a unique ID
         GiveID() {
             return new Date().getTime();
         }
@@ -94,6 +101,7 @@ module.exports = {
             }
         }
 
+        // Compares if the specified entry accomplishes the query
         DataQuerier(json, query, method) {
             for(const key_q of Object.keys(query)) {
                 if(json[key_q] === undefined) return false; // <-- Does not have that key
