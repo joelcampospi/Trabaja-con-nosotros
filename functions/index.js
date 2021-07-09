@@ -76,7 +76,10 @@ app.get('/view-cv/:cvid', async (req, res) => {
 
 app.post('/login' , async (req , res)=>{
     const user = await GetUserFromLogin(req.body.username);
-    if(!user) res.send({error:"Usuario no encontrado"});
+    if(!user) {
+        res.send({error:"Usuario no encontrado"});
+        return;
+    }
     if(!user.CanLogin()) {
         res.send({error:"El usuario está deshabilitado"});
         return;
