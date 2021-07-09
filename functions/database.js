@@ -5,7 +5,7 @@ module.exports = {
         DatabaseWorker() {}
     
         // Returns a JSON containing a list of the items
-        async Find(query = {}, method = "STRICT", start = 0, limit = -1) {
+        async Find(query = {}, method = "LIKE", start = 0, limit = -1) {
             const _files = await fs.readdirSync(this.databasePath + "/", { withFileTypes: true });
             const files = _files.filter(el => el.isFile()).map(el => el.name);
             let result = {
@@ -69,7 +69,29 @@ module.exports = {
         // Returns a string reducing it to a base text (removing spaces, capital letters, etc)
         LikeConverter(data) {
             data = data.toLowerCase();
-            return data;
+            data = Replacer(data,"a",["à","á","ä","â","4","@"]);
+            data = Replacer(data,"e",["è","é","ë","ê","3"]);
+            data = Replacer(data,"i",["ì","í","ï","î","1"]);
+            data = Replacer(data,"o",["ò","ó","ö","ô","0"]);
+            data = Replacer(data,"u",["ù","ú","ü","û"]);
+            data = Replacer(data,"",["ñ","ç"," ",",",".",";",":","-","_"]);
+
+            let reconstruct = "";
+            let last = "";
+            for(let l of data) {
+                if (l == last) continue;
+                reconstruct += l;
+                last = l;
+            }
+
+            return reconstruct;
+
+            function Replacer(origin, id, list) {
+                for(let el of list) {
+                    while(origin.includes(el)) origin = origin.replace(el,id);
+                }
+                return origin;
+            }
         }
 
         DataQuerier(json, query, method) {

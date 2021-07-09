@@ -32,7 +32,10 @@ app.get('/', function(req, res) {
 });
 
 app.post('/query', async function(req, res) {
-    if(!(await isAuthorised(req.body.sess))) res.send({response:"401"});
+    if(!(await isAuthorised(req.body.sess))) {
+        res.send({response:"401"});
+        return;
+    }
     const param = JSON.parse(req.body.query) || {};
     const results = await db.Find(param.query || {}, param.method || "STRICT", param.start || 0, param.limit || -1);
     res.send(results);
@@ -55,7 +58,10 @@ app.post('/action', async (req, res) => {
 });
 
 app.get('/view-cv/:cvid', async (req, res) => {
-    if(!(await isAuthorised(req.query.sess))) res.send({response:"401"});
+    if(!(await isAuthorised(req.query.sess))) {
+        res.send({response:"401"});
+        return;
+    }
     const id = req.params.cvid;
     let filename = null;
     for(const file of await fs.readdirSync("functions/database/files")) {
@@ -64,13 +70,12 @@ app.get('/view-cv/:cvid', async (req, res) => {
             break;
         }
     }
-    if(!filename) res.send({response:"404"});
+    if(!filename) res.send("No se ha encontrado ningún CV asignado a esta entrada");
     res.sendFile("database/files/" + filename,{root:__dirname});
 });
 
 app.post('/login' , async (req , res)=>{
-    console.log(req);
-    const user= await GetUserFromLogin(req.body.username);
+    const user = await GetUserFromLogin(req.body.username);
     if(!user) res.send({error:"Usuario no encontrado"});
     if(!user.CanLogin()) {
         res.send({error:"El usuario está deshabilitado"});
@@ -84,6 +89,8 @@ app.post('/login' , async (req , res)=>{
     // Create session
     const sessId = await user.CreateSession();
     res.send({error:false,sessid:sessId});
+    user.lastLogin = Date.now();
+    await user.Write();
 });
 
 app.listen(3000, function() {

@@ -5,8 +5,9 @@ if(!sess) window.location.replace("http://localhost:8080/login");
 var query = {
     limit: 20,
     start: 0,
+    method: "LIKE",
     query: {
-
+        
     }
 };
 var keys = [];
